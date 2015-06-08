@@ -32,7 +32,7 @@ GitHub：[https://github.com/mroderick/PubSubJS](https://github.com/mroderick/Pu
 				return PubSub;
 			} );
 		}
-	})( this );
+	})( typeof window !== 'undefined' && window || this );
 	
 ## 命名空间迭代
 Commit版本: `993e251e218d9f4186c53b73881d18978d9f34e9`
@@ -92,3 +92,13 @@ PubSubJS中的这段代码巧妙地利用了闭包，构造一个能记住参数
 		return true;
 	}
 	
+## 与iframe的事件通信
+Commit版本：`058899f25cbfadc89e77c4edd967ea6c0e3e0029`
+
+通过在子iframe中引入一个桥接文件：
+
+	function setPubSub( PubSub ){
+		window.PubSub = PubSub;
+	}
+
+将父window的PubSub实例传入共享，做到与iframe通信。
