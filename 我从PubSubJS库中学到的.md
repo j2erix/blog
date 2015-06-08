@@ -37,54 +37,20 @@ GitHub：[https://github.com/mroderick/PubSubJS](https://github.com/mroderick/Pu
 ## 命名空间迭代
 Commit版本: `993e251e218d9f4186c53b73881d18978d9f34e9`
 
-PubSub中使用过一个namespaceIterator（命名空间迭代）的方式来实现message的命名空间化。  
+PubSub中使用过一个循环的方式来实现message的命名空间化。  
 比如注册了a.b的一个message的监听器，那么a.b.c这个message在publish的时候也会触发该监听器，因为他们在命名空间上属于一个包含关系。相关代码如下：
 
-	/**
-	 *	Iterates the supplied namespace from most specific to least specific, applying the supplied function to each level
-	 *	@param { String } name
-	 *	@param { Function } func
-	 */
-	function namespaceIterator( name, func ){
-		var found = false,
-			position = name.lastIndexOf( '.' );
-
-		while( position !== -1 ){
-			name = name.substr( 0, position );
-			if (!func(name)){
-				break;
-			}
-			position = name.lastIndexOf('.');
-		}
-	}
-
-	function deliverMessage( originalMessage, matchedMessage, data ){
-		var subscribers = messages[matchedMessage],
-			throwException = function( ex ){
-				return function(){
-					throw ex;
-				};
-			},
-			i, j; 
-
-		for ( i = 0, j = subscribers.length; i < j; i++ ){
-			try {
-				subscribers[i].func( originalMessage, data );
-			} catch( ex ){
-				setTimeout( throwException( ex ), 0);
-			}
-		}
-	}
-
 	function messageHasSubscribers( message ){
-		var found = messages.hasOwnProperty( message );
-		if ( !found ){
-			// check upper levels
-			namespaceIterator(message, function(name){
-				found = messages.hasOwnProperty( name );
-				return found;
-			});
+		var topic = String( message ),
+			found = messages.hasOwnProperty( topic ),
+			position = topic.lastIndexOf( '.' );
+
+		while ( !found && position !== -1 ){
+			topic = topic.substr( 0, position );
+			position = topic.lastIndexOf('.');
+			found = messages.hasOwnProperty( topic );
 		}
+
 		return found;
 	}
 	
