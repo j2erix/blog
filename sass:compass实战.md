@@ -1,4 +1,4 @@
-# Sass/Compass实战
+# 《WEB+DB 2》Sass/Compass实战
 
 ## Sass的主要功能有：
 
@@ -46,4 +46,46 @@ Core模块
 * Reset 
 * Typography
 * Utilities - 方便的工具混合，如 CSS Sprites
+
+## CSS框架
+
+OOCSS
+
+* 结构与外观分离 - 结构指宽高；外观指颜色字体等；
+* 容器与内容分离 - 容器指方框；内容指标题按钮等；
+
+SMACSS
+
+* 基础 - Basic
+* 布局 - Layout
+* 模块 - Module
+* 状态 - State
+* 主题 - Theme
+
+BEM
+
+* Block - 块
+* Element - 元素
+* Modifier - 修饰器
+
+## MVCSS
+
+核心
+
+* Reset
+* Settings
+* Helpers
+* Base
+* Content
+* Layout
+
+模块
+
+* Modals
+* Buttons
+* Tooltips
+* Navigation
+
+## Maple
+
 
