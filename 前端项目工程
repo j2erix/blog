@@ -1,0 +1,33 @@
+# 前端项目工程
+***
+
+## 编码基础
+* ES6 + Babel.js
+* Sass + Compass
+
+## 前端路由
+* React-Router
+
+## 打包工具
+* Webpack
+
+## 包管理
+* NPM
+
+## 任务工具
+* Gulp.js
+
+## 代码检查
+* ESLint
+
+## 组建交互
+* Postal.js
+
+## 单元测试
+* Mocha + JSDom
+
+## 覆盖率检查
+* Istanble
+
+## 持续集成
+* Jenkins
