@@ -1,0 +1,36 @@
+# Flux
+***
+
+## Flux概览
+
+Flux是Facebook维护的，用于给作为视图的React提供补充的一种架构模式。
+
+Flux有三个主要部分：
+
+* dispatcher 分发器
+* stores 存储仓库，包含应用的数据和业务逻辑
+* views 视图，也就是react组件
+
+另外actions作为dispatcher的辅助，提供了描述应用中可能发生的所有变化的语义化API，它可以被认为是flux的更新周期中得第四部分。
+
+### Flux的工作流
+![Flux的工作流](http://facebook.github.io/flux/img/flux-simple-f8-diagram-explained-1300w.png)
+
+Action可以由*action creator*创建，但通常是由用户与View的交互产生。当Action被提供给Dispatcher，所有Store再Dispatcher中注册的回调都会被调用，接收相应的Action。如果某个Store中维护的状态被这个Action更改，Store就会触发一个*change event*提醒View做出更新。
+
+### Views和Controller-Views
+Controller-Views位于视图的顶层，它监听所依赖的store的广播事件，并提供了胶水代码调用store的公共getter方法，从store中获取相应的数据。
+
+获取了数据会向下传递全部数据，后代view根据需要摘取，这样就减少了props的数量。
+
+### Actions
+Dispatcher暴露了一个action方法，允许我们向store触发一次分发，并包含一些装载数据（payload）。这些action方法一般是使用一种语义化的方式（函数）进行包装，比如updateText(todoId, newText)。
+
+Actions也可能来自其他地方，比如服务端。这种情况可能在数据初始化的时候出现，也可能在服务端返回了一个错误码，或者服务端有更新的时候出现。
+
+### Dispatcher管理依赖
+Dispatcher提供了waitFor()方法来管理store之间的依赖。waitFor()方法接受一个数组参数，包含了依赖的store在dispatcher中的注册索引。这个索引（dispatch tokens）在register()方法注册回调的时候会返回。
+
+***
+
+
