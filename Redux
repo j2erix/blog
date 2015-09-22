@@ -1,2 +1,167 @@
 # Redux
 ***
+Redux是一个应用状态管理库。它可以配合React使用，也可以用作其他表现层的应用管理器。
+
+### 安装
+
+```
+npm install --save redux
+npm install --save react-redux
+npm install --save-dev redux-devtools
+```
+
+### 主旨
+Redux的主旨，可以概括为三部分及它们的相互关系：
+
+* state tree
+* action
+* reducer
+
+State tree是一个对象树，保存着应用的全部状态。改变这个状态的唯一方式就是触发一个action，这是一种描述变化的对象。至于就action对state tree做出怎样的影响，则是通过编写reducer来描述。
+![reducer示意图](images/reducer-basic.png)
+
+### 对比Flux
+与Flux不同，Redux没有dispatcher，也不支持多个store。Redux全局只有一个store和一个reducer。当应用变大的时候，不是增加Store，而是将reducer拆分为很多小的reducer，用于操作store中state tree的不同部分。
+
+## Introduction
+
+### 三个基本原则
+Redux可以被描述为三个基本原则：
+
+#### Single source of truth
+The state of your whole application is stored in an object tree inside a single store.
+
+#### State is read-only
+The only way to mutate the state is to emit an action, an object describing what happened.
+
+*注：Actions are just plain objects, so they can be logged, serialized, stored, and later replayed for debugging or testing purposes.*
+
+#### Mutations are written as pure functions
+To specify how the state tree is transformed by actions, you write pure reducers.
+
+Reducer是纯粹的function，它接受previous state和action，产出next state。
+
+当应用变大的时候，应该将reducer拆分为多个小的reducer，用于分管state tree中不同的部分。
+
+## Basics
+
+### Acitons
+这是一个基本的Action：
+
+```
+{
+  type: 'ADD_TODO',
+  text: 'Build my first Redux app'
+}
+```
+
+type字段是必须的，剩下的完全按照开发者喜好。action的建议规范可以参考[Flux Standard Action](https://github.com/acdlite/flux-standard-action)。
+
+在项目较大的时候，可以将action type单独开辟在一个地方维护：
+
+```
+import { ADD_TODO, REMOVE_TODO } from '../actionTypes';
+```
+[Reducing Boilerplate](http://rackt.github.io/redux/docs/recipes/ReducingBoilerplate.html)列举了很多保持代码整洁的优秀实践。
+
+应当给每一个todo对象添加一个index字段，作为唯一id：
+
+```
+{
+  type: COMPLETE_TODO,
+  index: 5
+}
+```
+
+应当尽量减少传递的数据，比如只传递todo的index。
+
+最后添加一个筛选action：
+
+```
+{
+  type: SET_VISIBILITY_FILTER,
+  filter: SHOW_COMPLETED
+}
+```
+
+#### Action Creators
+Action creator是一类纯函数，只做返回action的事情：
+
+```
+function addTodo(text) {
+  return {
+    type: ADD_TODO,
+    text
+  };
+}
+```
+
+有了action creator，就可以用store.dispatch来分发：
+
+`dispatch(addTodo(text));`
+
+也可以结合dispatch包装成bound action creator：
+
+`const boundAddTodo = (text) => dispatch(addTodo(text));`
+
+推荐使用react-redux的connect()方法来进行分发。
+
+### Reducers
+Actions描述了“刺激”的构成，但是没有描述应用状态如何响应刺激，因为这是reducer做的事情。
+
+#### 设计State Shap
+由于在Redux中，应用的状态是在一个单一Object Tree中表现的，所以可以从state tree的角度对应用进行一个最小化的设计。
+
+值得注意的是，应用的state tree中往往同时包含数据（data）和UI状态（UI state），这是容许的，但是要尽量将两个清晰的分开。
+
+比如TodoList应用的状态设计可以像下面这样：
+
+```
+{
+  visibilityFilter: 'SHOW_ALL',
+  todos: [{
+    text: 'Consider using Redux',
+    completed: true,
+  }, {
+    text: 'Keep all state in a single tree',
+    completed: false
+  }]
+}
+```
+注意，在实际应用中，应该给每个实体都赋予唯一id，详情可以参考[normalizr's](https://github.com/gaearon/normalizr)。
+
+#### 处理Actions
+有了state，就能编写reducer以处理action了。reducer是个纯函数，接受statet和action，产出新的state。
+
+`(previousState, action) => newState`
+
+为了保持reducer的纯粹性，应该禁止在reducer中做如下事情：
+
+* Mutate its arguments;
+* Perform side effects like API calls and routing transitions.
+
+那这些额外的事情应该在哪做呢？这将会在下面的章[advanced walkthrough](http://rackt.github.io/redux/docs/advanced/index.html)节讲到。
+
+这里是一个reducer的例子：
+
+```
+function todoApp(state = initialState, action) {
+  switch (action.type) {
+  case SET_VISIBILITY_FILTER:
+    return Object.assign({}, state, {
+      visibilityFilter: action.filter
+    });
+  default:
+    return state;
+  }
+}
+```
+
+注意：
+
+1. 我们不修改参数，使用Object.assign生成一个行的state。也可以用ES7的实验语法{...state, ...newState}
+2. 在没有匹配action的事后，默认返回原state
+
+例子中的switch语句将会在[“reducing boilerplate”](http://rackt.github.io/redux/docs/recipes/ReducingBoilerplate.html#reducers)中，被handler map代替。
+
+由于Reducer不能修改原state，只能返回一个新的state。这种情况下对state的增删改就会变得相对复杂，也需要相应库的支持。
