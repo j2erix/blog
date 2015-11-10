@@ -1,0 +1,7 @@
+# require.js的jsEscape
+
+require在browser端是通过xhr加载模块，在node端是使用fs.readFileSync的方式去加载模块。服务端使用r.js优化的情况就是后者。
+
+当要加载纯文本模块的时候需要额外安装text.js插件，text.js中会做一些纯文本处理的事情，比如jsEscape。最后输出一个js友好的字符串。
+
+在text.js中，jsEscape基于正则表达式的replace，比如`/(['\\])/g`，用于替换文本模块中的单引号。
